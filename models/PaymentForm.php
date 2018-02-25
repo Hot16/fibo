@@ -2,11 +2,8 @@
 
 namespace app\models;
 
-
-
 use yii\base\Model;
 use Yii;
-use yii\db\ActiveRecord;
 
 class PaymentForm extends Model
 {
@@ -38,6 +35,11 @@ class PaymentForm extends Model
         ];
     }
 
+    /**
+     * Отправляем письмо об оплате
+     * @param $email
+     * @return bool
+     */
     public function send_payment($email)
     {
         if ($this->validate()) {
@@ -53,6 +55,10 @@ class PaymentForm extends Model
         return false;
     }
 
+    /**
+     * Пишем в базу оплату
+     * @throws \yii\db\Exception
+     */
     public function update()
     {
         $connection = Yii::$app->db;
@@ -64,6 +70,6 @@ class PaymentForm extends Model
                 'summ' => $this->summ
             ])
             ->execute();
-        $this;
+
     }
 }

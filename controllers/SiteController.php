@@ -5,8 +5,6 @@ namespace app\controllers;
 use app\models\PaymentForm;
 use moonland\phpexcel\Excel;
 use Yii;
-use yii\base\Exception;
-use yii\base\ExitException;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
 use yii\web\Controller;
@@ -140,26 +138,24 @@ class SiteController extends Controller
     {
         $model = new PaymentForm();
 
-        $post = Yii::$app->request->post();
-
         if ($model->load(Yii::$app->request->post())) {
-            Yii::$app->session->setFlash('payment');
+            Yii::$app->session->setFlash('payment'); //пишем в сессию факт оплаты
 
-            $model->send_payment(Yii::$app->params['adminEmail']);
+            $model->send_payment(Yii::$app->params['adminEmail']); //отправляем письмо
 
-            $model->update();
+            $model->update(); //пишем в базу
 
             return $this->refresh();
         }
 
 
-        $userName = Yii::$app->user->identity->username;
-        $path = Yii::getAlias('@webroot');
-        $payDataAllList = Excel::import($path.'/files/example_test_01.xlsx');
+        $userName = Yii::$app->user->identity->username; //логин авторизовавшегося
+        $path = Yii::getAlias('@webroot'); //путь к директории
+        $payDataAllList = Excel::import($path.'/files/example_test_01.xlsx'); //файл для импорта данных
         $payDataFirstList = $payDataAllList[0];
         $payDataAllListUsers = ArrayHelper::index($payDataFirstList,'Аккаунт');
         $payDataCurrentUser = ArrayHelper::getValue($payDataAllListUsers, $userName);
-
+//проверяем, что не null и присваиваем значения
         if (!is_null($payDataCurrentUser)) {
             $model->name = $payDataCurrentUser['Аккаунт'];
             $model->currency = $payDataCurrentUser['Валюта'];
